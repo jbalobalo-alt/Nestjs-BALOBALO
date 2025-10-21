@@ -9,21 +9,26 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   pool!: mysql.Pool;
   
   async onModuleInit() {
-    this.pool = mysql.createPool({
-      host: process.env.DB_HOST,
-      port: +(process.env.DB_PORT || 25137),
-      user: process.env.DB_USERS ,
-      password: process.env.DB_PASSWORD ,
-      database: process.env.DB_NAME ,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,  
-    });
-    // optional:
-    const conn = await this.pool.getConnection();
-    await conn.ping();
-    conn.release();
-    console.log('MySQL pool created');
+    try {
+      this.pool = mysql.createPool({
+        host: process.env.DB_HOST,
+        port: +(process.env.DB_PORT || 25137),
+        user: process.env.DB_USER ,
+        password: process.env.DB_PASSWORD ,
+        database: process.env.DB_NAME ,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+      });
+      // optional:
+      const conn = await this.pool.getConnection();
+      await conn.ping();
+      conn.release();
+      console.log('MySQL pool created');
+    } catch (error) {
+      console.error('Database connection failed:', error);
+      throw error;
+    }
   }
 
   async onModuleDestroy() {
